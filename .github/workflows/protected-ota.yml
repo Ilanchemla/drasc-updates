@@ -1,0 +1,73 @@
+name: Protected OTA publication
+on:
+  workflow_dispatch:
+    inputs:
+      staging_tag:
+        description: Draft release containing the two validated ZIP files
+        required: true
+        type: string
+      approval_json:
+        description: Validated version, commit, source hash, ZIP hashes, runtimes and previous checksums
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: protected-ota-production
+  cancel-in-progress: false
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/release-control'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22.23.3"
+      - run: node --test publisher/validate-bundle.test.mjs
+      - name: Verify exact bundles before requesting access to the signing key
+        env:
+          APPROVAL_JSON: ${{ inputs.approval_json }}
+          STAGING_TAG: ${{ inputs.staging_tag }}
+          GITHUB_TOKEN: ${{ github.token }}
+          PUBLICATION_MODE: verify
+        run: node publisher/publish.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: preflight-proof
+          path: preflight-proof.json
+          retention-days: 30
+  publish:
+    needs: verify
+    if: github.ref == 'refs/heads/release-control'
+    environment: production-signing
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22.23.3"
+      - name: Verify approved bundles, sign, and publish
+        env:
+          APPROVAL_JSON: ${{ inputs.approval_json }}
+          STAGING_TAG: ${{ inputs.staging_tag }}
+          GITHUB_TOKEN: ${{ github.token }}
+          DRASC_OTA_PRIVATE_KEY: ${{ secrets.DRASC_OTA_PRIVATE_KEY }}
+          PUBLICATION_MODE: publish
+        run: node publisher/publish.mjs
+      - name: Archive non-secret publication proof
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: publication-proof
+          path: publication-proof.json
+          retention-days: 30

@@ -1,0 +1,8 @@
+{
+  "repository": "Ilanchemla/drasc-updates",
+  "publicKey": "-----BEGIN PUBLIC KEY-----\nMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA4PLebn4Ygs6deKpj1wpM\n6orZU63IvuBx6YfYEiWgQpHLuD5WhCD2YMemOBY6UJ5lznRX4biHlbW3lp5/cjV/\nFC6iTy2N5xGfV0wJpWVXZE88m/ngrcXP7c/J1KXHpT2iNg3qTR4NnZ+ICSdAQPEC\nu4f2HGSHxojEaO1LsHrw24IJ7Itsn54Qm1xXiY3rqzv99+L8Of/UnQMClNrIsFex\nC/WBnIUz+1QFi5AFPoWIpn/iNviVUEi1Zu25KEeaFEqsHNzpU3zlPmGwyIH0DGU4\neOy8c+1qGLxwX7pDl9Pg+WgvmfVOdhAv60ikG9sgFU6uxNVMOaHwrzGI1WIl/bF2\nkLSRQEx+MfEfVGZfjgDQK3hyXFJJRZ8miuO7lXN/YTNHkzQwiy/Rdk79bDgX+SU/\n4mmqnqe9mXpsFTyeIoTmFqHoWRrW2xfBDeNPDmuTtziWiBpCOwa1gx4a5RUekiJj\nTGXfpB5p1pEkdZmDH0JDT3UxcZDYfmubDFe6yUYF1bIzf3CHy/VvH9ddAdGfNrnD\ngDUcpovJrnUP4PiYkk+a8cheVLiotSdy6+ykXFATbANFZfHA1zBiJ3jNqDhsgzyw\nVCRYXqBNG9brceIDexeJmbDhS8xu5NWdNeLndf3S7zYg7g5E5ZTGyirV5lW0m5iR\n+1wjb8MYzaaCnYDlSwYhN4MCAwEAAQ==\n-----END PUBLIC KEY-----\n",
+  "runtimes": {
+    "android": "bb7a2dd5402feda99260fc132abb7a4b804e0fe654be7cf03b26f3cf189becb7",
+    "ios": "407774d9714989f57fccad762212718b3e70a423365b70cebe20234bbd1efa1a"
+  }
+}
