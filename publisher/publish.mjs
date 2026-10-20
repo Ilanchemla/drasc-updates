@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import { getDraftRelease } from "./draft-release.mjs";
 import {
   validateApproval,
   validateBundle,
@@ -62,8 +63,11 @@ async function request(
   if (octets) return Buffer.from(await response.arrayBuffer());
   return response.status === 204 ? null : response.json();
 }
-const release = await request(`releases/tags/${staging}`);
-if (!release.draft) throw Error("Staging release must remain draft");
+const release = await getDraftRelease(
+  request,
+  process.env.STAGING_RELEASE_ID,
+  staging,
+);
 const bundles = {};
 const channels = {};
 for (const mode of ["android", "ios"]) {
