@@ -22,6 +22,11 @@ concurrency:
 jobs:
   verify:
     if: github.ref == 'refs/heads/release-control'
+    # GitHub requires push access to read unpublished releases.
+    # Keep this token behind the same locked-branch/environment review.
+    environment: production-signing
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
