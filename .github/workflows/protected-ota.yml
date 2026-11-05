@@ -7,7 +7,7 @@ on:
         required: true
         type: string
       staging_tag:
-        description: Draft release containing the two validated ZIP files
+        description: Draft release containing the exact approved platform ZIP files
         required: true
         type: string
       approval_json:

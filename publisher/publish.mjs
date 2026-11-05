@@ -2,6 +2,7 @@ import fs from "node:fs";
 import { getDraftRelease } from "./draft-release.mjs";
 import {
   validateApproval,
+  approvalPlatforms,
   validateBundle,
   validateCurrentChannel,
   signBundle,
@@ -14,6 +15,7 @@ const config = JSON.parse(
 const approval = validateApproval(
   JSON.parse(process.env.APPROVAL_JSON || "null"),
 );
+const modes = approvalPlatforms(approval);
 const staging = process.env.STAGING_TAG;
 if (
   !/^candidate-0\.\d+\.\d+-[a-f0-9]{12}$/.test(staging || "") ||
@@ -27,7 +29,7 @@ if (
   throw Error("Protected release-control branch required");
 if (process.env.GITHUB_EVENT_NAME !== "workflow_dispatch")
   throw Error("Manual approval required");
-for (const mode of ["android", "ios"])
+for (const mode of modes)
   if (approval[mode].runtime !== config.runtimes[mode])
     throw Error("Native runtime change requires separate native validation");
 const token = process.env.GITHUB_TOKEN;
@@ -70,7 +72,7 @@ const release = await getDraftRelease(
 );
 const bundles = {};
 const channels = {};
-for (const mode of ["android", "ios"]) {
+for (const mode of modes) {
   const matching = release.assets.filter((x) => x.name === `drasc-${mode}.zip`);
   if (matching.length !== 1 || matching[0].size > 100 * 1024 * 1024)
     throw Error("Staged bundle missing or too large");
@@ -80,17 +82,21 @@ for (const mode of ["android", "ios"]) {
   validateBundle(bytes, mode, approval);
   bundles[mode] = bytes;
   const channel = `${mode}/${approval[mode].runtime}/latest.json`;
-  const current = await request(`contents/${channel}?ref=main`);
-  const envelope = JSON.parse(
-    Buffer.from(current.content, "base64").toString("utf8"),
-  );
+  const allowBootstrap = config.bootstrap?.[mode] === approval[mode].runtime;
+  const current = await request(`contents/${channel}?ref=main`, {
+    allowMissing: allowBootstrap,
+  });
+  const envelope = current
+    ? JSON.parse(Buffer.from(current.content, "base64").toString("utf8"))
+    : null;
   const action = validateCurrentChannel(
     envelope,
     mode,
     approval,
     config.publicKey,
+    { allowBootstrap },
   );
-  channels[mode] = { path: channel, sha: current.sha, action };
+  channels[mode] = { path: channel, sha: current?.sha, action };
 }
 if (process.env.PUBLICATION_MODE === "verify") {
   const preflight = {
@@ -107,7 +113,7 @@ if (process.env.PUBLICATION_MODE === "verify") {
   if (process.env.GITHUB_STEP_SUMMARY)
     fs.appendFileSync(
       process.env.GITHUB_STEP_SUMMARY,
-      `## Paquets vérifiés avant accès à la clé\n\nVersion : ${approval.version}\n\nCommit applicatif : \`${approval.commit}\`\n\nSources : \`${approval.sourceSha256}\`\n\nAndroid SHA-256 : \`${approval.android.sha256}\`\n\niPhone SHA-256 : \`${approval.ios.sha256}\`\n\nContrôle de signature : \`${process.env.GITHUB_SHA}\`\n`,
+      `## Paquets vérifiés avant accès à la clé\n\nVersion : ${approval.version}\n\nCommit applicatif : \`${approval.commit}\`\n\nSources : \`${approval.sourceSha256}\`\n\n${modes.map((mode) => `${mode} SHA-256 : \`${approval[mode].sha256}\``).join("\n\n")}\n\nContrôle de signature : \`${process.env.GITHUB_SHA}\`\n`,
     );
   console.log(JSON.stringify(preflight));
   process.exit(0);
@@ -119,7 +125,7 @@ if (process.env.PUBLICATION_MODE !== "publish")
 const privateKey = process.env.DRASC_OTA_PRIVATE_KEY;
 if (!privateKey) throw Error("Protected signing secret missing");
 const envelopes = {};
-for (const mode of ["android", "ios"])
+for (const mode of modes)
   envelopes[mode] = signBundle(
     bundles[mode],
     mode,
@@ -134,7 +140,7 @@ const proof = {
   controlCommit: process.env.GITHUB_SHA,
   platforms: [],
 };
-for (const mode of ["android", "ios"]) {
+for (const mode of modes) {
   const manifest = JSON.parse(envelopes[mode].payload),
     bytes = bundles[mode];
   let target = await request(`releases/tags/${manifest.bundleId}`, {

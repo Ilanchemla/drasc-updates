@@ -4,6 +4,18 @@ const maxZip = 100 * 1024 * 1024,
   maxExpanded = 180 * 1024 * 1024;
 export const digest = (bytes) =>
   createHash("sha256").update(bytes).digest("hex");
+export function approvalPlatforms(value) {
+  const modes = value?.platforms ?? ["android", "ios"];
+  if (
+    !Array.isArray(modes) ||
+    !modes.length ||
+    modes.length > 2 ||
+    new Set(modes).size !== modes.length ||
+    modes.some((mode) => !["android", "ios"].includes(mode))
+  )
+    throw Error("Invalid approved platforms");
+  return modes;
+}
 export function validateApproval(value) {
   if (
     !value ||
@@ -12,7 +24,8 @@ export function validateApproval(value) {
     !/^[0-9a-f]{64}$/.test(value.sourceSha256)
   )
     throw Error("Invalid approval identity");
-  for (const mode of ["android", "ios"])
+  const modes = approvalPlatforms(value);
+  for (const mode of modes)
     if (
       !/^[0-9a-f]{64}$/.test(value[mode]?.sha256) ||
       !/^[0-9a-f]{64}$/.test(value[mode]?.runtime) ||
@@ -25,7 +38,7 @@ export function validateApproval(value) {
     value.version,
     value.commit,
     value.sourceSha256,
-    ...["android", "ios"].flatMap((mode) => [
+    ...modes.flatMap((mode) => [
       value[mode].sha256,
       value[mode].runtime,
       value[mode].previousChecksum,
@@ -35,8 +48,22 @@ export function validateApproval(value) {
     throw Error("Whitespace in approval identity");
   return value;
 }
-export function validateCurrentChannel(envelope, mode, approval, publicKey) {
+export function validateCurrentChannel(
+  envelope,
+  mode,
+  approval,
+  publicKey,
+  { allowBootstrap = false } = {},
+) {
   validateApproval(approval);
+  if (!approvalPlatforms(approval).includes(mode))
+    throw Error("Platform not approved");
+  if (
+    envelope === null &&
+    allowBootstrap &&
+    approval[mode].previousChecksum === "0".repeat(64)
+  )
+    return "bootstrap";
   if (
     typeof envelope?.payload !== "string" ||
     typeof envelope.signature !== "string" ||
@@ -124,6 +151,8 @@ export function inspectZip(bytes) {
     )
       throw Error("Unsafe ZIP record");
     const name = bytes.subarray(p + 46, p + 46 + nameLength).toString("utf8");
+    if (/\.(?:dex|jar|so|apk|aab|dylib|dll|exe)$/i.test(name))
+      throw Error("Native executable payload refused");
     if (
       !name ||
       name.startsWith("/") ||
@@ -173,7 +202,8 @@ export function inspectZip(bytes) {
 }
 export function validateBundle(bytes, mode, approval) {
   validateApproval(approval);
-  if (!["android", "ios"].includes(mode)) throw Error("Unknown platform");
+  if (!approvalPlatforms(approval).includes(mode))
+    throw Error("Platform not approved");
   if (digest(bytes) !== approval[mode].sha256)
     throw Error("Bundle differs from approved hash");
   const { build, fileCount } = inspectZip(bytes);
