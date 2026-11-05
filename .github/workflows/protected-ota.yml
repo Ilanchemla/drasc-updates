@@ -3,8 +3,9 @@ on:
   workflow_dispatch:
     inputs:
       staging_release_id:
-        description: Numeric ID of the private draft release
+        description: Numeric draft release ID, or auto to find the exact approved candidate tag
         required: true
+        default: auto
         type: string
       staging_tag:
         description: Draft release containing the exact approved platform ZIP files
