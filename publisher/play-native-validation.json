@@ -1,0 +1,30 @@
+{
+  "recordedAt": "2026-11-05T13:36:02.631Z",
+  "passed": true,
+  "candidate": "68973cfaa286a80275f7922cb6f0ff3208fed04e",
+  "sourceSha256": "a96d9750d77319e819f8d923401bf53b0f101d954e2c8ebdcc58695c7a1c68e2",
+  "version": "0.1.69",
+  "versionCode": 16,
+  "runtime": "5d7bd6ac5d835ea16dd8af8bdea83b645386460b1a2e3d758c1442298ed4d879",
+  "nodeTests": 1034,
+  "nativeTests": 8,
+  "publisherTests": 18,
+  "androidBuild": "6aec823fab17f8deb7530c99",
+  "iosBuild": "6aec8326ab17f8deb7530d0a",
+  "unsignedAabSha256": "857823d134f9e9ba13877d26871a3e97a826a71ef5a31b998f7ce4135cc3b42b",
+  "otaSha256": "fb190e7f860bf15a033b0a1546c4f78ec4bb0523d30ba0d0958a9316982a744f",
+  "otaBytes": 29889056,
+  "verificationKeyUnchanged": true,
+  "rollbackTimeout": 20000,
+  "autoBlockRolledBackBundles": true,
+  "physicalOtaTested": false,
+  "published": false,
+  "budget": {
+    "usedBefore": 378,
+    "total": 500,
+    "maxMinutesPerBuild": 30,
+    "builds": 2,
+    "costEUR": 0,
+    "subscriptionEnabled": false
+  }
+}

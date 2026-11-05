@@ -96,6 +96,30 @@ test("accepted bundle is inspected as data, never executed", () => {
   assert.deepEqual(inspectZip(bytes).build, build);
   assert.equal(validateBundle(bytes, "android", approval).fileCount, 3);
 });
+
+test("native executable files are refused before access to the signing key", () => {
+  for (const suffix of [
+    "dex",
+    "jar",
+    "so",
+    "apk",
+    "aab",
+    "dylib",
+    "dll",
+    "exe",
+  ])
+    assert.throws(
+      () =>
+        inspectZip(
+          pack({
+            "index.html": "fixture",
+            "drasc-build.json": JSON.stringify(build),
+            [`assets/forbidden.${suffix}`]: "native",
+          }),
+        ),
+      /Native executable/,
+    );
+});
 test("an altered byte is rejected before signing", () => {
   const altered = Buffer.from(bytes);
   altered[45] ^= 1;
