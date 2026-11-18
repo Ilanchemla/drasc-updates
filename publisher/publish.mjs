@@ -7,6 +7,7 @@ import {
   validateCurrentChannel,
   signBundle,
   digest,
+  runtimeIsApproved,
 } from "./validate-bundle.mjs";
 const repository = "Ilanchemla/drasc-updates";
 const config = JSON.parse(
@@ -30,7 +31,7 @@ if (
 if (process.env.GITHUB_EVENT_NAME !== "workflow_dispatch")
   throw Error("Manual approval required");
 for (const mode of modes)
-  if (approval[mode].runtime !== config.runtimes[mode])
+  if (!runtimeIsApproved(config, mode, approval[mode].runtime))
     throw Error("Native runtime change requires separate native validation");
 const token = process.env.GITHUB_TOKEN;
 if (!token) throw Error("Scoped publication token missing");
