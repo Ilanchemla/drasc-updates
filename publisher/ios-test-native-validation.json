@@ -1,0 +1,33 @@
+{
+  "passed": true,
+  "recordedUtc": "2026-11-18",
+  "provider": "Codemagic",
+  "buildUrl": "https://codemagic.io/app/6add1826d900bf84446fc17d/build/6afdc0f2d133a39c4a12bc3a",
+  "sourceCommit": "7bae42af8d8fab0cb2c7566258290950a804476c",
+  "sourceSha256": "324d128aaba5477dbe93ac6ccea5ced3fc088df6a4309f42c4ced831859d22e4",
+  "version": "0.1.74",
+  "nativeBuild": "18",
+  "appId": "app.drasc.mobile.test71",
+  "nativeAuthRedirect": "app.drasc.mobile.test71://auth/callback",
+  "runtime": "f061262a434936aa0ba1e059e55c0799a15955e39cfdaa09ca337bf6ebd94d2c",
+  "nativeUpdaterPresent": true,
+  "offlineOcrEmbedded": true,
+  "signatureStrictVerified": true,
+  "nativeSimulatorCompilePassed": true,
+  "nativeRsaAndTamperCheckPassed": true,
+  "registeredDeviceCount": 1,
+  "ipaSha256": "e4d3888f3ad0e8e89d997b4a389517b1c1a54626869589b8a735409f85fdfd7d",
+  "ipaBytes": 30688182,
+  "publicKeySha256": "7d44d1397576a6bd7f1fdb3a6de2f5a0a0591b4d404a9d418603fe0641898aab",
+  "existingPublicKeyUnchanged": true,
+  "nodeTestsPassed": 1123,
+  "physicalInstallationConfirmed": false,
+  "physicalOtaActivationConfirmed": false,
+  "budget": {
+    "usedBefore": 492,
+    "usedAfter": 494,
+    "total": 500,
+    "maxBuildMinutes": 7,
+    "subscriptionEnabled": false
+  }
+}

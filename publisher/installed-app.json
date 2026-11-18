@@ -6,6 +6,10 @@
     "ios": "407774d9714989f57fccad762212718b3e70a423365b70cebe20234bbd1efa1a"
   },
   "bootstrap": {
-    "android": "5d7bd6ac5d835ea16dd8af8bdea83b645386460b1a2e3d758c1442298ed4d879"
+    "android": "5d7bd6ac5d835ea16dd8af8bdea83b645386460b1a2e3d758c1442298ed4d879",
+    "ios": "f061262a434936aa0ba1e059e55c0799a15955e39cfdaa09ca337bf6ebd94d2c"
+  },
+  "additionalRuntimes": {
+    "ios": ["f061262a434936aa0ba1e059e55c0799a15955e39cfdaa09ca337bf6ebd94d2c"]
   }
 }

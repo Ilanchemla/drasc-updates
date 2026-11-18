@@ -4,6 +4,22 @@ const maxZip = 100 * 1024 * 1024,
   maxExpanded = 180 * 1024 * 1024;
 export const digest = (bytes) =>
   createHash("sha256").update(bytes).digest("hex");
+
+// Only explicitly recorded native profiles may receive signed web bundles.
+// Additional profiles keep the existing installed application channels intact.
+export function runtimeIsApproved(config, mode, runtime) {
+  if (
+    !["android", "ios"].includes(mode) ||
+    !/^[a-f0-9]{64}$/.test(runtime || "")
+  )
+    return false;
+  const additional = config.additionalRuntimes?.[mode] || [];
+  return (
+    Array.isArray(additional) &&
+    additional.every((value) => /^[a-f0-9]{64}$/.test(value)) &&
+    [config.runtimes?.[mode], ...additional].includes(runtime)
+  );
+}
 export function approvalPlatforms(value) {
   const modes = value?.platforms ?? ["android", "ios"];
   if (
